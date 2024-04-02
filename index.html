@@ -31,12 +31,13 @@
   const quantityLike = document.getElementById('quantityLike');
 
   const getDate = () => {
-    const currentDate = new Date();
+    const currentDate = new Date("September 02, 1995 23:15:30");
     let day = currentDate.getDate();
+    let trueDay = day < 10 ? '0' + day : day
     let month = currentDate.getMonth() + 1;
     let trueMonth = month < 10 ? '0' + month : month;
     let year = currentDate.getFullYear().toString().substr(-2);
-    let dateEl = `${day}:${trueMonth}:${year}`;
+    let dateEl = `${trueDay}:${trueMonth}:${year}`;
     let currentMinutes = currentDate.getMinutes() < 10 ? '0' + currentDate.getMinutes() : currentDate.getMinutes()
     let currentTime = `${currentDate.getHours()}:${currentMinutes} `;
     let currentDateTime = `${dateEl} ${currentTime}`;
@@ -64,7 +65,6 @@
   const renderComments = () => {
     const commentsHtml = commentsForRender
       .map((post, index) => {
-
 
         const isLike = post.isLike ? "-active-like" : "";
 
@@ -95,24 +95,28 @@
   renderComments();
 
   commentsEl.addEventListener('click', function (e) {
-    let index;
 
     if (e.target.className.includes('like-button')) {
-      index = Number(e.target.id);
-      commentsForRender[index].isLike = commentsForRender[index].isLike ? false : true;
-
-      if (commentsForRender[index].isLike) {
-        commentsForRender[index].counterlike = commentsForRender[index].counterlike + 1
+      let index = Number(e.target.id);
+      const currentPost = commentsForRender[index];
+      let currentComment = currentPost.isLike;
+      let currentCounterLike = currentPost.counterlike;
+      currentComment = !currentComment;
+      if (currentComment) {
+        currentCounterLike = currentCounterLike + 1;
       } else {
-        commentsForRender[index].counterlike = commentsForRender[index].counterlike - 1
+        currentCounterLike = currentCounterLike - 1
       };
-      renderComments();
 
+      currentPost.isLike = currentComment;
+      currentPost.counterlike = currentCounterLike;
+
+      renderComments();
     }
 
   });
 
-  function eroor(a) {
+  function error(a) {
     if (a.value === "") {
       a.classList.add('error')
       return true
@@ -124,8 +128,8 @@
     const oldCommentsEl = commentsEl.innerHTML;
     inputNameEl.classList.remove('error');
     inputTextEl.classList.remove('error');
-    const nameError = eroor(inputNameEl);
-    const textError = eroor(inputTextEl);
+    const nameError = error(inputNameEl);
+    const textError = error(inputTextEl);
 
     if (nameError || textError) {
       return;
