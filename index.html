@@ -19,6 +19,7 @@
       <div class="add-form-row">
         <button id="add-form-button" class="add-form-button">Написать</button>
       </div>
+      <button id="dell" class="manipulation-of-comments">Удалить послений комментарий</button>
     </div>
   </div>
 </body>
@@ -28,45 +29,55 @@
   const commentsEl = document.getElementById('comments');
   const inputNameEl = document.getElementById('inputName');
   const inputTextEl = document.getElementById('inputText');
-  const quantityLike = document.getElementById('quantityLike');
+  const dellbutton = document.getElementById('dell');
 
+  // Функция получения даты в необходимом формате  
   const getDate = () => {
-    const currentDate = new Date("September 02, 1995 23:15:30");
+    const currentDate = new Date();
     let day = currentDate.getDate();
     let trueDay = day < 10 ? '0' + day : day
     let month = currentDate.getMonth() + 1;
     let trueMonth = month < 10 ? '0' + month : month;
     let year = currentDate.getFullYear().toString().substr(-2);
     let dateEl = `${trueDay}:${trueMonth}:${year}`;
+    let currentHourse = currentDate.getHours() < 10 ? '0' + currentDate.getHours() : currentDate.getHours()
     let currentMinutes = currentDate.getMinutes() < 10 ? '0' + currentDate.getMinutes() : currentDate.getMinutes()
-    let currentTime = `${currentDate.getHours()}:${currentMinutes} `;
+    let currentTime = `${currentHourse}:${currentMinutes} `;
     let currentDateTime = `${dateEl} ${currentTime}`;
 
     return currentDateTime
   }
 
+  // Массив комментариев 
   const commentsForRender = [
     {
       name: "Глеб Фокин",
       comentDate: "12.02.22 12:18",
       comment: "Это будет первый комментарий на этой странице",
       counterlike: 3,
-      isLike: false
+      isLike: false,
+      isEdit: false,
+      isAuthor: false
     },
     {
       name: "Варвара Н.",
       comentDate: "13.02.22 19:22",
       comment: "Мне нравится как оформлена эта страница! ❤",
       counterlike: 75,
-      isLike: true
+      isLike: true,
+      isEdit: false,
+      isAuthor: false
     }
   ];
 
+  // Функция рендера 
   const renderComments = () => {
     const commentsHtml = commentsForRender
       .map((post, index) => {
 
         const isLike = post.isLike ? "-active-like" : "";
+        const isEdit = post.isEdit ? "" : "hide";
+        const isAuthor = post.isAuthor ? "" : "hide";
 
         return `<li class="comment" >
           <div class="comment-header">
@@ -74,7 +85,7 @@
             <div>${post.comentDate}</div>
           </div>
           <div class="comment-body">
-            <div class="comment-text">
+            <div id=${index} class="comment-text">
               ${post.comment}
             </div>
           </div>
@@ -83,19 +94,28 @@
               <span id = "likes-counter" class="likes-counter">${post.counterlike}</span>
               <button id=${index} class="like-button ${isLike}"></button>
             </div>
+            
           </div>
-        </li>`;
+          <div class="${isEdit}">
+            <div class="edit-form">
+              <input id='inpt_${index}' type="text" class="add-form-text"/>
+              <div class="add-form-row">
+                <button id='btn_${index}' class="add-form-button">Сохранить</button>
+              </div>
+            </div>
+          </div>
+          <button id=${index} class="manipulation-of-comments ${isAuthor}">Редактировать</button>
+          </li>`;
       })
       .join("");
 
     commentsEl.innerHTML = commentsHtml;
 
   };
-
   renderComments();
 
+  // Работаем с количеством лайков
   commentsEl.addEventListener('click', function (e) {
-
     if (e.target.className.includes('like-button')) {
       let index = Number(e.target.id);
       const currentPost = commentsForRender[index];
@@ -113,21 +133,69 @@
 
       renderComments();
     }
-
   });
 
+  // Забираем комментарий для ответа на него
+  commentsEl.addEventListener('click', function (e) {
+    if (e.target.className.includes('comment-text')) {
+      let i = Number(e.target.id);
+      const currentPostText = commentsForRender[i];
+      // Если dTransfer >= 0 значит есть перенос строки с последнего элемента \n (Репост репоста)
+      const idTransfer = currentPostText.comment.lastIndexOf('\n');
+      let currentCommentText;
+      if (idTransfer >= 0) {
+        const lastComment = currentPostText.comment.slice(idTransfer);
+        currentCommentText = lastComment;
+      } else {
+        currentCommentText = currentPostText.comment;
+      }
+
+      let currentCommentAuthor = currentPostText.name;
+      inputTextEl.value = `QUOTE_BEGIN > "${currentCommentAuthor}" \n ${currentCommentText} QUOTE_END \n `;
+    }
+  });
+
+  // Редактирование комментария
+  commentsEl.addEventListener('click', function (e) {
+    if (e.target.className.includes('manipulation-of-comments')) {
+      let i = Number(e.target.id);
+      const editCurrentPost = commentsForRender[i];
+      editCurrentPost.isEdit = !editCurrentPost.isEdit;
+      renderComments();
+      const editInput = document.getElementById(`inpt_${i}`);
+      editInput.defaultValue = editCurrentPost.comment;
+    }
+  });
+
+  // Сохранение измененного комментария
+  commentsEl.addEventListener('click', function (e) {
+
+    if (e.target.className.includes('add-form-button')) {
+      let { id } = e.target;
+      let i = Number(id.slice(4))
+      const editInputValue = document.getElementById(`inpt_${i}`).value;
+      commentsForRender[i].comment = editInputValue;
+      commentsForRender[i].isEdit = false;
+      renderComments()
+    }
+  });
+
+  // Проверка на наличия текста в в форме
   function error(a) {
     if (a.value === "") {
       a.classList.add('error')
+      buttonEl.classList.add('error')
       return true
     }
     return false
   }
 
+  // Функция добавления нового комментария
   buttonEl.addEventListener('click', function (e) {
     const oldCommentsEl = commentsEl.innerHTML;
     inputNameEl.classList.remove('error');
     inputTextEl.classList.remove('error');
+    buttonEl.classList.remove('error');
     const nameError = error(inputNameEl);
     const textError = error(inputTextEl);
 
@@ -135,17 +203,32 @@
       return;
     }
 
+    // Добавляем в массив
     commentsForRender.push({
-      name: inputNameEl.value,
+      name: goodByeHacker(inputNameEl.value),
       comentDate: getDate(),
-      comment: inputTextEl.value,
+      comment: goodByeHacker(inputTextEl.value),
       counterlike: 0,
-      isLike: false
+      isLike: false,
+      isEdit: false,
+      isAuthor: true
     })
-    renderComments();
 
+    renderComments();
     document.getElementById('inputName').value = '';
     document.getElementById('inputText').value = '';
+    console.log(commentsForRender);
+  });
+
+  // Убираем уязвимость
+  function goodByeHacker(text) {
+    return text.replaceAll('<', '&lt').replaceAll('>', '&gt').replaceAll('QUOTE_BEGIN', "<div class='quote'>").replaceAll('QUOTE_END', "</div>")
+  }
+
+  // Удаляем комменнтарий из массива
+  dellbutton.addEventListener('click', function (e) {
+    commentsForRender.pop();
+    renderComments();
   });
 </script>
 

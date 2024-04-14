@@ -138,5 +138,37 @@ body {
 
 
   .error {
-    background-color: rgb(255, 177, 177);
+    background-color: rgb(218, 218, 218);
+  }
+
+  .quote {
+    background-color: #ffffff47;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .manipulation-of-comments {
+    display: flex;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #a6a6a6;
+    width: fit-content;
+  }
+
+  .manipulation-of-comments:hover {
+    color: #ffffff;
+    text-decoration: underline;
+    transition: all 0.1s;
+  }
+
+
+  .hide {
+    display: none;
+  }
+
+  .edit-form {
+    display: flex;
+    flex-direction: column;
   }
