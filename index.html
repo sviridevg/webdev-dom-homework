@@ -31,15 +31,15 @@
   const inputNameEl = document.getElementById('inputName');
   const inputTextEl = document.getElementById('inputText');
   const dellbutton = document.getElementById('dell');
+  const baseURL = "https://wedev-api.sky.pro/api/v1/sviridevg/comments";
 
   // Получение данных с сервера 
   const getFetchPromise = () => {
-    fetch("https://wedev-api.sky.pro/api/v1/sviridevg/comments", {
+    fetch(baseURL, {
       method: "GET"
     }).then((response) => {
       const jsonPromise = response.json();
-
-      jsonPromise.then((responseData) => {
+        jsonPromise.then((responseData) => {
         commentsForRender = responseData.comments;
         renderComments();
       }
@@ -53,49 +53,55 @@
     const commentsHtml = commentsForRender
       .map((post, index) => {
 
-        const currentDate = new Date(post.date);
-        let day = currentDate.getDate();
-        let trueDay = day < 10 ? '0' + day : day
-        let month = currentDate.getMonth() + 1;
-        let trueMonth = month < 10 ? '0' + month : month;
-        let year = currentDate.getFullYear().toString().substr(-2);
-        let dateEl = `${trueDay}:${trueMonth}:${year}`;
-        let currentHourse = currentDate.getHours() < 10 ? '0' + currentDate.getHours() : currentDate.getHours()
-        let currentMinutes = currentDate.getMinutes() < 10 ? '0' + currentDate.getMinutes() : currentDate.getMinutes()
-        let currentTime = `${currentHourse}:${currentMinutes} `;
-        let currentDateTime = `${dateEl} ${currentTime}`;
-
+        // функция отображения даты
+        const getDate = () => {
+          const currentDate = new Date(post.date);
+          let day = currentDate.getDate();
+          let trueDay = day < 10 ? '0' + day : day
+          let month = currentDate.getMonth() + 1;
+          let trueMonth = month < 10 ? '0' + month : month;
+          let year = currentDate.getFullYear().toString().substr(-2);
+          let dateEl = `${trueDay}:${trueMonth}:${year}`;
+          let currentHourse = currentDate.getHours() < 10 ? '0' + currentDate.getHours() : currentDate.getHours()
+          let currentMinutes = currentDate.getMinutes() < 10 ? '0' + currentDate.getMinutes() : currentDate.getMinutes()
+          let currentTime = `${currentHourse}:${currentMinutes} `;
+          let currentDateTime = `${dateEl} ${currentTime}`;
+          return currentDateTime;
+        }
+        
+        // Условия изменения стилие сердечка и открытия окна редактирования
         const isLike = post.isLiked ? "-active-like" : "";
         const isEdit = post.isEdit ? "" : "hide";
         const isAuthor = post.isAuthor ? "" : "hide";
-
+        
+        // Верстка тела комментария
         return `<li class="comment" >
-          <div class="comment-header">
-            <div> ${post.author.name} </div>
-            <div>${currentDateTime}</div>
-          </div>
-          <div class="comment-body">
-            <div id=${post.id} class="comment-text">
-              ${post.text}
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span id = "likes-counter" class="likes-counter">${post.likes}</span>
-              <button id=${index} class="like-button ${isLike}"></button>
-            </div>
-            
-          </div>
-          <div class="${isEdit}">
-            <div class="edit-form">
-              <input id='inpt_${index}' type="text" class="add-form-text"/>
-              <div class="add-form-row">
-                <button id='btn_${index}' class="add-form-button">Сохранить</button>
-              </div>
-            </div>
-          </div>
-          <button id=${index} class="manipulation-of-comments ${isAuthor}">Редактировать</button>
-          </li>`;
+                <div class="comment-header">
+                  <div> ${post.author.name} </div>
+                  <div>${getDate()}</div>
+                </div>
+                <div class="comment-body">
+                  <div id=${post.id} class="comment-text">
+                    ${post.text}
+                  </div>
+                </div>
+                <div class="comment-footer">
+                  <div class="likes">
+                    <span id = "likes-counter" class="likes-counter">${post.likes}</span>
+                    <button id=${index} class="like-button ${isLike}"></button>
+                  </div>
+                  
+                </div>
+                <div class="${isEdit}">
+                  <div class="edit-form">
+                    <input id='inpt_${index}' type="text" class="add-form-text"/>
+                    <div class="add-form-row">
+                      <button id='btn_${index}' class="add-form-button">Сохранить</button>
+                    </div>
+                  </div>
+                </div>
+                <button id=${index} class="manipulation-of-comments ${isAuthor}">Редактировать</button>
+                </li>`;
       })
       .join("");
 
@@ -128,6 +134,7 @@
     if (e.target.className.includes('comment-text')) {
       let i = Number(e.target.id);
       const currentPostText = commentsForRender.find(el => el.id === i);
+
       // Если dTransfer >= 0 значит есть перенос строки с последнего элемента \n (Репост репоста)
       const idTransfer = currentPostText.text.lastIndexOf('\n');
       let currentCommentText;
@@ -192,7 +199,7 @@
     }
 
     // Отправка данных на серевр
-    const postFetchPromise = fetch("https://wedev-api.sky.pro/api/v1/sviridevg/comments", {
+    const postFetchPromise = fetch(baseURL, {
       method: "POST",
       body: JSON.stringify({
         text: goodByeHacker(inputTextEl.value),
@@ -210,7 +217,6 @@
       })
     });
 
-    // renderComments();
     document.getElementById('inputName').value = '';
     document.getElementById('inputText').value = '';
   });
