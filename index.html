@@ -131,7 +131,7 @@
   commentsEl.addEventListener('click', function (e) {
     if (e.target.className.includes('like-button')) {
       // Выбрал необходимое сердечко и добавил на него стиль с анимацией 
-      e.target.classList.value = "like-button -loading-like";
+      e.target.classList.value = "like-button -loading";
       // В этот же момент добавил для Body стиль курсора с прогрессом загрузки
       bodyContainerEl.classList.value = "container progress-cursor";
       // Запустилась функция имитации запросов в API
@@ -229,7 +229,7 @@
     // Создал новый элемент формы при нажатии на кнопку "Написать" на форму добавляю стиль Hide который убирает форму
     formEl.classList.value = "hide";
     // Создал параграф со стилем Hide при нажатии на кнопку "Написать" стиль убирается и появляется текст "Комментарий отправляется..."
-    commentPreloadEl.classList.value = "";
+    commentPreloadEl.classList.value = "-loading";
 
     // Отправка данных на серевр v2.0
     fetch(baseURL, {
