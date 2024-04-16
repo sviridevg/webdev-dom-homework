@@ -171,3 +171,28 @@ body {
     display: flex;
     flex-direction: column;
   }
+
+
+
+@keyframes customAni {
+  0%,
+  50%,
+  100% {
+	opacity: 1;
+  }
+
+  25%,
+  75% {
+	opacity: 0;
+  }
+}
+
+
+  .-loading-like {
+    animation: customAni 2.5s ease 0s infinite normal none;
+
+  }
+
+  .progress-cursor { 
+    cursor: progress; 
+  }

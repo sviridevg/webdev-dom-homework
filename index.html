@@ -9,11 +9,12 @@
 </head>
 
 <body>
-  <div class="container">
+  <div id="bodyContainer" class="container">
     <ul id="comments" class="comments">
       <!-- Коменты рендерятся из JS -->
     </ul>
-    <div class="add-form">
+    <p class="hide" id="commentPreload">Комментарий отправляется...</p>
+    <div id="form" class="add-form">
       <input id="inputName" type="text" class="add-form-name" placeholder="Введите ваше имя" />
       <textarea id="inputText" type="textarea" class="add-form-text" placeholder="Введите ваш коментарий"
         rows="4"></textarea>
@@ -32,19 +33,27 @@
   const inputTextEl = document.getElementById('inputText');
   const dellbutton = document.getElementById('dell');
   const baseURL = "https://wedev-api.sky.pro/api/v1/sviridevg/comments";
+  const formEl = document.getElementById('form');
+  const commentPreloadEl = document.getElementById('commentPreload');
+  const bodyContainerEl = document.getElementById('bodyContainer');
 
-  // Получение данных с сервера 
+
+  // Прелоадер страницы комментариев 
+  commentsEl.disabled = true;
+  commentsEl.textContent = "Пожалуйста подождите комментарии загружаются";
+
+  // Получение данных с сервера v2.0
   const getFetchPromise = () => {
     fetch(baseURL, {
       method: "GET"
-    }).then((response) => {
-      const jsonPromise = response.json();
-        jsonPromise.then((responseData) => {
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseData) => {
         commentsForRender = responseData.comments;
         renderComments();
-      }
-      )
-    })
+      })
   };
   getFetchPromise();
 
@@ -68,12 +77,13 @@
           let currentDateTime = `${dateEl} ${currentTime}`;
           return currentDateTime;
         }
-        
+
         // Условия изменения стилие сердечка и открытия окна редактирования
         const isLike = post.isLiked ? "-active-like" : "";
         const isEdit = post.isEdit ? "" : "hide";
         const isAuthor = post.isAuthor ? "" : "hide";
-        
+
+
         // Верстка тела комментария
         return `<li class="comment" >
                 <div class="comment-header">
@@ -108,24 +118,41 @@
     commentsEl.innerHTML = commentsHtml;
   };
 
-  // Работаем с количеством лайков
+  // Функция для имитации запросов в API
+  function delay(interval = 300) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, interval);
+    });
+  }
+
+  // Работаем с количеством лайков с имитайцией запросов в API
   commentsEl.addEventListener('click', function (e) {
     if (e.target.className.includes('like-button')) {
-      let index = Number(e.target.id);
-      const currentPost = commentsForRender[index];
-      let currentComment = currentPost.isLiked;
-      let currentCounterLike = currentPost.likes;
-      currentComment = !currentComment;
-      if (currentComment) {
-        currentCounterLike = currentCounterLike + 1;
-      } else {
-        currentCounterLike = currentCounterLike - 1
-      };
+      // Выбрал необходимое сердечко и добавил на него стиль с анимацией 
+      e.target.classList.value = "like-button -loading-like";
+      // В этот же момент добавил для Body стиль курсора с прогрессом загрузки
+      bodyContainerEl.classList.value = "container progress-cursor";
+      // Запустилась функция имитации запросов в API
+      delay(2000).then(() => {
+        let index = Number(e.target.id);
+        const currentPost = commentsForRender[index];
+        let currentComment = currentPost.isLiked;
+        let currentCounterLike = currentPost.likes;
+        currentComment = !currentComment;
+        if (currentComment) {
+          currentCounterLike = currentCounterLike + 1;
+        } else {
+          currentCounterLike = currentCounterLike - 1
+        };
 
-      currentPost.isLiked = currentComment;
-      currentPost.likes = currentCounterLike;
-
-      renderComments();
+        currentPost.isLiked = currentComment;
+        currentPost.likes = currentCounterLike;
+        renderComments();
+        // По завершению рендера убираю у Body стиль курсора
+        bodyContainerEl.classList.value = "container";
+      });
     }
   });
 
@@ -198,25 +225,42 @@
       return;
     }
 
-    // Отправка данных на серевр
-    const postFetchPromise = fetch(baseURL, {
+    // Прелоадер отправки комментария 
+    // Создал новый элемент формы при нажатии на кнопку "Написать" на форму добавляю стиль Hide который убирает форму
+    formEl.classList.value = "hide";
+    // Создал параграф со стилем Hide при нажатии на кнопку "Написать" стиль убирается и появляется текст "Комментарий отправляется..."
+    commentPreloadEl.classList.value = "";
+
+    // Отправка данных на серевр v2.0
+    fetch(baseURL, {
       method: "POST",
       body: JSON.stringify({
         text: goodByeHacker(inputTextEl.value),
         name: inputNameEl.value
       }),
-    });
-
-    postFetchPromise.then((response) => {
-      const jsonPromise = response.json();
-
-      jsonPromise.then((responseData) => {
-        if (responseData.result === "ok") {
-          getFetchPromise()
-        }
+    })
+      .then((response) => {
+        return response.json();
       })
-    });
+      .then((responseData) => {
+        return fetch(baseURL, {
+          method: "GET"
+        });
+      })
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseData) => {
+        commentsForRender = responseData.comments;
+        renderComments();
+      })
+      .then((Data) => {
+        // По завершению рендера возвращаю стили элементов в исходное состояние
+        formEl.classList.value = "add-form";
+        commentPreloadEl.classList.value = "hide";
+      });
 
+    // Очистка формы
     document.getElementById('inputName').value = '';
     document.getElementById('inputText').value = '';
   });
