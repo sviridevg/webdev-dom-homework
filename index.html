@@ -114,7 +114,7 @@
                     }</span>
                     <button id=${index} class="like-button ${isLike}"></button>
                   </div>
-                  
+
                 </div>
                 <div class="${isEdit}">
                   <div class="edit-form">
@@ -233,6 +233,7 @@
       buttonEl.classList.remove("error");
       const nameError = error(inputNameEl);
       const textError = error(inputTextEl);
+      sendData();
 
       if (nameError || textError) {
         return;
@@ -244,40 +245,82 @@
       // Создал параграф со стилем Hide при нажатии на кнопку "Написать" стиль убирается и появляется текст "Комментарий отправляется..."
       commentPreloadEl.classList.value = "-loading";
 
-      // Отправка данных на серевр v2.0
-      fetch(baseURL, {
-        method: "POST",
-        body: JSON.stringify({
-          text: goodByeHacker(inputTextEl.value),
-          name: inputNameEl.value,
-        }),
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((responseData) => {
-          return fetch(baseURL, {
-            method: "GET",
-          });
-        })
-        .then((response) => {
-          return response.json();
-        })
-        .then((responseData) => {
-          commentsForRender = responseData.comments;
-          renderComments();
-        })
-        .then((Data) => {
-          // По завершению рендера возвращаю стили элементов в исходное состояние
+      // Ошибка 400
+      function fourHundredError() {
+        alert("Имя или текст короче 3 символов");
+        inputNameEl.classList.add("error");
+        inputTextEl.classList.add("error");
+        formEl.classList.value = "add-form";
+        commentPreloadEl.classList.value = "hide";
+      }
+
+      // Ошибка когда что то пошло не так
+      function somethingsWrong() {
+        alert("Что то пошло не так, попробуйте пожалуйста позже");
+        setTimeout(() => {
           formEl.classList.value = "add-form";
           commentPreloadEl.classList.value = "hide";
-        });
+        }, 2500);
+      }
 
-      // Очистка формы
-      document.getElementById("inputName").value = "";
-      document.getElementById("inputText").value = "";
+      // Отправка данных на серевр v3.0
+
+      function sendData() {
+        fetch(baseURL, {
+          method: "POST",
+          body: JSON.stringify({
+            text: goodByeHacker(inputTextEl.value),
+            name: goodByeHacker(inputNameEl.value),
+            forceError: true,
+          }),
+        })
+          .then((response) => {
+            if (response.status === 201) {
+              return response.json();
+            } else {
+              throw (respStat = response.status);
+            }
+          })
+          .then((responseData) => {
+            return fetch(baseURL, {
+              method: "GET",
+            });
+          })
+          .then((response) => {
+            return response.json();
+          })
+          .then((responseData) => {
+            commentsForRender = responseData.comments;
+            renderComments();
+          })
+          .then((Data) => {
+            // Отображение формы
+            formEl.classList.value = "add-form";
+            commentPreloadEl.classList.value = "hide";
+            // Очистка формы
+            document.getElementById("inputName").value = "";
+            document.getElementById("inputText").value = "";
+            handleButtonClick();
+          })
+          .catch((respStat) => {
+            if (respStat === 400) {
+              return fourHundredError();
+            }
+            if (respStat === 500) {
+              setTimeout(() => {
+                sendData();
+              }, 2500);
+            } else {
+              somethingsWrong();
+            }
+          });
+      }
     });
 
+    // Прокрутка документа после добавления комментария
+    function handleButtonClick() {
+      formEl.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
     // Убираем уязвимость
     function goodByeHacker(text) {
       return text
