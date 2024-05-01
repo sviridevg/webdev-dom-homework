@@ -1,5 +1,6 @@
 import { getDate } from "./date.js";
-import { handleButtonClick } from "./main.js";
+import { like } from "./like.js";
+import { reply } from "./reply.js";
 
 // Функция рендера
 export function renderComments(commentsForRender, commentsEl) {
@@ -28,21 +29,13 @@ export function renderComments(commentsForRender, commentsEl) {
                   }</span>
                   <button id=${index} class="like-button ${isLike}"></button>
                   </div>
-  
-              </div>
-              <div class="${isEdit}">
-                  <div class="edit-form">
-                  <input id='inpt_${index}' type="text" class="add-form-text"/>
-                  <div class="add-form-row">
-                      <button id='btn_${index}' class="add-form-button">Сохранить</button>
-                  </div>
-                  </div>
-              </div>
-              <button id=${index} class="manipulation-of-comments ${isAuthor}">Редактировать</button>
+                </div>
               </li>`;
     })
     .join("");
 
   commentsEl.innerHTML = commentsHtml;
-  handleButtonClick();
+
+  like(commentsForRender, commentsEl);
+  reply(commentsForRender);
 }

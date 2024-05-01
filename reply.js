@@ -1,12 +1,10 @@
-import { getFP } from "./api.js";
 import { inputTextEl } from "./main.js";
 
-export function reply(e) {
-  if (e.target.className.includes("comment-text")) {
-    getFP().then((responseData) => {
-      const commentsForRender = responseData.comments;
-      let i = Number(e.target.id);
-      const currentPostText = commentsForRender.find((el) => el.id === i);
+export function reply(commentsForRender) {
+  const replyText = document.querySelectorAll(".comment-text");
+  replyText.forEach((element, index) => {
+    element.addEventListener("click", function (e) {
+      const currentPostText = commentsForRender[index];
 
       // Если dTransfer >= 0 значит есть перенос строки с последнего элемента \n (Репост репоста)
       const idTransfer = currentPostText.text.lastIndexOf("\n");
@@ -21,5 +19,5 @@ export function reply(e) {
       let currentCommentAuthor = currentPostText.author.name;
       inputTextEl.value = `QUOTE_BEGIN > "${currentCommentAuthor}" \n ${currentCommentText} QUOTE_END \n `;
     });
-  }
+  });
 }

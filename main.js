@@ -1,14 +1,11 @@
 import { getFP, sendD } from "./api.js";
 import { fourHundredError, somethingsWrong } from "./error.js";
-import { like } from "./like.js";
 import { renderComments } from "./render.js";
-import { reply } from "./reply.js";
 
 const buttonEl = document.getElementById("add-form-button");
 export const commentsEl = document.getElementById("comments");
 export const inputNameEl = document.getElementById("inputName");
 export const inputTextEl = document.getElementById("inputText");
-const dellbutton = document.getElementById("dell");
 export const baseURL = "https://wedev-api.sky.pro/api/v1/sviridevg/comments";
 export const formEl = document.getElementById("form");
 export const commentPreloadEl = document.getElementById("commentPreload");
@@ -27,41 +24,7 @@ const getFetchPromise = () => {
 };
 getFetchPromise();
 
-// Работаем с количеством лайков с имитайцией запросов в API
-commentsEl.addEventListener("click", function (e) {
-  like(e);
-});
-
-// Забираем комментарий для ответа на него
-commentsEl.addEventListener("click", function (e) {
-  reply(e);
-});
-
-// Редактирование комментария
-commentsEl.addEventListener("click", function (e) {
-  if (e.target.className.includes("manipulation-of-comments")) {
-    let i = Number(e.target.id);
-    const editCurrentPost = commentsForRender[i];
-    editCurrentPost.isEdit = !editCurrentPost.isEdit;
-    renderComments();
-    const editInput = document.getElementById(`inpt_${i}`);
-    editInput.defaultValue = editCurrentPost.comment;
-  }
-});
-
-// Сохранение измененного комментария
-commentsEl.addEventListener("click", function (e) {
-  if (e.target.className.includes("add-form-button")) {
-    let { id } = e.target;
-    let i = Number(id.slice(4));
-    const editInputValue = document.getElementById(`inpt_${i}`).value;
-    commentsForRender[i].comment = editInputValue;
-    commentsForRender[i].isEdit = false;
-    renderComments();
-  }
-});
-
-// Проверка на наличия текста в в форме
+// Проверка на наличие текста в в форме
 function error(a) {
   if (a.value === "") {
     a.classList.add("error");
@@ -73,14 +36,11 @@ function error(a) {
 
 // Функция добавления нового комментария
 buttonEl.addEventListener("click", function (e) {
-  const oldCommentsEl = commentsEl.innerHTML;
   inputNameEl.classList.remove("error");
   inputTextEl.classList.remove("error");
   buttonEl.classList.remove("error");
   const nameError = error(inputNameEl);
   const textError = error(inputTextEl);
-  sendData();
-
   if (nameError || textError) {
     return;
   }
@@ -88,6 +48,7 @@ buttonEl.addEventListener("click", function (e) {
   // Прелоадер отправки комментария
   formEl.classList.value = "hide";
   commentPreloadEl.classList.value = "-loading";
+  sendData();
 
   // Отправка данных на серевр v3.0
   function sendData() {
@@ -114,7 +75,7 @@ buttonEl.addEventListener("click", function (e) {
         // Очистка формы
         document.getElementById("inputName").value = "";
         document.getElementById("inputText").value = "";
-        handleButtonClick();
+        scroll();
       })
       .catch((respStat) => {
         if (respStat === 400) {
@@ -131,9 +92,10 @@ buttonEl.addEventListener("click", function (e) {
 });
 
 // Прокрутка документа после добавления комментария
-export function handleButtonClick() {
+export function scroll() {
   formEl.scrollIntoView({ block: "center", behavior: "smooth" });
 }
+
 // Убираем уязвимость
 export function goodByeHacker(text) {
   return text
@@ -142,9 +104,3 @@ export function goodByeHacker(text) {
     .replaceAll("QUOTE_BEGIN", "<div class='quote'>")
     .replaceAll("QUOTE_END", "</div>");
 }
-
-// // Удаляем комменнтарий из массива
-// dellbutton.addEventListener("click", function (e) {
-//   commentsForRender.pop();
-//   renderComments();
-// });
