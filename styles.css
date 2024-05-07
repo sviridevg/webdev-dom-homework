@@ -22,7 +22,8 @@ body {
 }
 
 .comment,
-.add-form {
+.add-form,
+.add-form-authorization {
   width: 596px;
   box-sizing: border-box;
   background: radial-gradient(
@@ -98,12 +99,45 @@ body {
   flex-direction: column;
 }
 
+.add-form-authorization {
+  padding: 20px;
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 12px;
+}
+
+.add-form-name-authorization {
+  width: 400px;
+  padding: 11px 22px;
+}
+
 .add-form-name,
-.add-form-text {
+.add-form-text,
+.add-form-name-authorization {
   font-size: 16px;
   font-family: Helvetica;
   border-radius: 8px;
   border: none;
+}
+
+.add-form-row-authorization {
+  display: flex;
+  justify-content: space-evenly;
+  column-gap: 12px;
+  margin-bottom: 24px;
+}
+
+.add-form-button-authorization {
+  margin-top: 24px;
+  font-size: 24px;
+  padding: 10px 20px;
+  border-radius: 18px;
+  border: 2px solid #bcec30;
+  color: #bcec30;
+  background-color: transparent;
+  cursor: pointer;
 }
 
 .add-form-name {
@@ -115,6 +149,10 @@ body {
   margin-top: 12px;
   padding: 22px;
   resize: none;
+}
+
+.authorization {
+  margin-top: 12px;
 }
 
 .add-form-row {
@@ -132,7 +170,8 @@ body {
   cursor: pointer;
 }
 
-.add-form-button:hover {
+.add-form-button,
+.add-form-button-authorization:hover {
   opacity: 0.9;
 }
 
@@ -189,4 +228,13 @@ body {
 
 .progress-cursor {
   cursor: progress;
+}
+
+.link-button {
+  color: #fff;
+  font-size: 16px;
+  text-decoration-line: underline;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
 }
