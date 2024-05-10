@@ -1,4 +1,4 @@
-import { commentPreloadEl, formEl, inputNameEl, inputTextEl } from "./main.js";
+import { commentPreloadEl, formEl, inputNameEl, inputTextEl} from "./main.js";
 
 // Ошибка 400
 export function fourHundredError() {

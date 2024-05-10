@@ -1,28 +1,49 @@
-import { getFP, sendD } from "./api.js";
+import { getPromis, sendDataToApi } from "./api.js";
+import { clearStorage, localAutorize } from "./autorize-local-storage.js";
 import { fourHundredError, somethingsWrong } from "./error.js";
+import { formRender } from "./render-form.js";
+
+import { preloaderAutorize, renderAuthorize, scroll } from "./render-login.js";
 import { renderComments } from "./render.js";
 
-const buttonEl = document.getElementById("add-form-button");
 export const commentsEl = document.getElementById("comments");
-export const inputNameEl = document.getElementById("inputName");
-export const inputTextEl = document.getElementById("inputText");
-export const baseURL = "https://wedev-api.sky.pro/api/v1/sviridevg/comments";
-export const formEl = document.getElementById("form");
+
+export const baseURL = "https://wedev-api.sky.pro/api/v2/sviridevg/comments";
+export const userURL = "https://wedev-api.sky.pro/api/user";
+export const loginURL = "https://wedev-api.sky.pro/api/user/login";
+
 export const commentPreloadEl = document.getElementById("commentPreload");
 export const bodyContainerEl = document.getElementById("bodyContainer");
+export const renderFormEl = document.getElementById("renderFormEl");
+export const authorizButton = document.getElementById("authorization-button");
+export const preloaderAuthorizationEl = document.getElementById(
+  "preloader-authorization"
+);
 
 // Прелоадер страницы комментариев
-commentsEl.disabled = true;
 commentsEl.textContent = "Пожалуйста подождите комментарии загружаются";
 
+localAutorize()
+
 // Получение данных с сервера v2.0
-const getFetchPromise = () => {
-  getFP().then((responseData) => {
+export const getFetchPromise = () => {
+  getPromis().then((responseData) => {
     const commentsForRender = responseData.comments;
     renderComments(commentsForRender, commentsEl);
+    renderAuthorize();
   });
 };
 getFetchPromise();
+preloaderAutorize();
+formRender();
+clearStorage();
+
+export const buttonEl = document.getElementById("add-form-button");
+export const inputNameEl = document.getElementById("inputName");
+export const inputTextEl = document.getElementById("inputText");
+export const formEl = document.getElementById("form");
+
+
 
 // Проверка на наличие текста в в форме
 function error(a) {
@@ -52,7 +73,7 @@ buttonEl.addEventListener("click", function (e) {
 
   // Отправка данных на серевр v3.0
   function sendData() {
-    sendD()
+    sendDataToApi()
       .then((response) => {
         const respStat = response.status;
         if (response.status === 201) {
@@ -62,7 +83,7 @@ buttonEl.addEventListener("click", function (e) {
         }
       })
       .then((responseData) => {
-        return getFP();
+        return getPromis();
       })
       .then((responseData) => {
         const commentsForRender = responseData.comments;
@@ -73,9 +94,8 @@ buttonEl.addEventListener("click", function (e) {
         formEl.classList.value = "add-form";
         commentPreloadEl.classList.value = "hide";
         // Очистка формы
-        document.getElementById("inputName").value = "";
         document.getElementById("inputText").value = "";
-        scroll();
+        scroll(formEl);
       })
       .catch((respStat) => {
         if (respStat === 400) {
@@ -90,11 +110,6 @@ buttonEl.addEventListener("click", function (e) {
       });
   }
 });
-
-// Прокрутка документа после добавления комментария
-export function scroll() {
-  formEl.scrollIntoView({ block: "center", behavior: "smooth" });
-}
 
 // Убираем уязвимость
 export function goodByeHacker(text) {
