@@ -23,7 +23,7 @@ export const preloaderAuthorizationEl = document.getElementById(
 // Прелоадер страницы комментариев
 commentsEl.textContent = "Пожалуйста подождите комментарии загружаются";
 
-localAutorize()
+localAutorize();
 
 // Получение данных с сервера v2.0
 export const getFetchPromise = () => {
@@ -42,8 +42,6 @@ export const buttonEl = document.getElementById("add-form-button");
 export const inputNameEl = document.getElementById("inputName");
 export const inputTextEl = document.getElementById("inputText");
 export const formEl = document.getElementById("form");
-
-
 
 // Проверка на наличие текста в в форме
 function error(a) {

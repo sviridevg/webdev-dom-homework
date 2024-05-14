@@ -37,14 +37,11 @@ export const setName = (newName) => {
   inputNameEl.value = newName;
 };
 
-
-
 // Получение токена авторизации
 export let token;
 export const setToken = (newToken) => {
   token = newToken;
 };
-
 
 // отправка данных авторизации на сервер
 export function getAutorize({ login, password }) {
@@ -56,7 +53,6 @@ export function getAutorize({ login, password }) {
     }),
   });
 }
-
 
 // отправка данных авторизации на сервер
 export function getRegistration({ login, name, password }) {

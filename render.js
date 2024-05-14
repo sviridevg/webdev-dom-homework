@@ -1,6 +1,8 @@
-import { getDate } from "./date.js";
+import { format } from "date-fns";
+// import { getDate } from "./date.js";
 import { like } from "./like.js";
 import { reply } from "./reply.js";
+
 
 // Функция рендера
 export function renderComments(commentsForRender, commentsEl) {
@@ -15,7 +17,7 @@ export function renderComments(commentsForRender, commentsEl) {
       return `<li class="comment" >
               <div class="comment-header">
                   <div> ${post.author.name} </div>
-                  <div>${getDate(post.date)}</div>
+                  <div>${format(new Date(post.date), 'yyyy-MM-dd hh.mm.ss')}</div>
               </div>
               <div class="comment-body">
                   <div id=${post.id} class="comment-text">
